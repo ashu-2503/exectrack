@@ -14,8 +14,11 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @GetMapping
-    public List<DashboardResponse> getDashboard() {
-        return dashboardService.getDashboard();
+    @GetMapping("/month")
+    public List<DashboardResponse> getMonthlyDashboard(
+            @RequestParam int year,
+            @RequestParam int month
+    ) {
+        return dashboardService.getMonthlyDashboard(year, month);
     }
 }
