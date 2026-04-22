@@ -12,13 +12,11 @@ public class DashboardResponse {
     private Long taskId;
     private String taskName;
 
-    private int totalDays;
-    private int completedDays;
-    private int missedDays;
+    private List<DayStatus> dailyStatus;
 
+    private int completedDays;
+    private int totalDays;
     private double completionPercentage;
 
-    private int currentStreak;
-
-    private List<DailyStatus> last7Days;
+    private int longestStreak;
 }

@@ -1,7 +1,7 @@
 package com.ashu.exectrack.dashboard;
 
-import com.ashu.exectrack.dashboard.dto.DailyStatus;
 import com.ashu.exectrack.dashboard.dto.DashboardResponse;
+import com.ashu.exectrack.dashboard.dto.DayStatus;
 import com.ashu.exectrack.task.Task;
 import com.ashu.exectrack.task.TaskRepository;
 import com.ashu.exectrack.tasklog.TaskLog;
@@ -9,7 +9,7 @@ import com.ashu.exectrack.tasklog.TaskLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.*;
 import java.util.*;
 
 @Service
@@ -19,70 +19,82 @@ public class DashboardService {
     private final TaskRepository taskRepository;
     private final TaskLogRepository taskLogRepository;
 
-    public List<DashboardResponse> getDashboard() {
+    public List<DashboardResponse> getMonthlyDashboard(int year, int month) {
 
         List<Task> tasks = taskRepository.findAll();
         List<DashboardResponse> responseList = new ArrayList<>();
 
+        YearMonth yearMonth = YearMonth.of(year, month);
+        int totalDaysInMonth = yearMonth.lengthOfMonth();
+
         LocalDate today = LocalDate.now();
-        LocalDate startDate = today.minusDays(6);
 
         for (Task task : tasks) {
 
+            LocalDate startDate = yearMonth.atDay(1);
+            LocalDate endDate = yearMonth.atEndOfMonth();
+
             List<TaskLog> logs = taskLogRepository
-                    .findByTaskIdAndDateBetween(task.getId(), startDate, today);
+                    .findByTaskIdAndDateBetween(task.getId(), startDate, endDate);
 
             Map<LocalDate, TaskLog> logMap = new HashMap<>();
             for (TaskLog log : logs) {
                 logMap.put(log.getDate(), log);
             }
 
-            List<DailyStatus> last7Days = new ArrayList<>();
+            List<DayStatus> dayStatuses = new ArrayList<>();
 
             int completed = 0;
-            int missed = 0;
 
-            for (int i = 0; i < 7; i++) {
-                LocalDate date = startDate.plusDays(i);
+            for (int day = 1; day <= totalDaysInMonth; day++) {
 
-                if (logMap.containsKey(date)) {
-                    String status = logMap.get(date).getStatus();
+                LocalDate currentDate = yearMonth.atDay(day);
 
-                    if ("DONE".equals(status)) completed++;
-                    if ("MISSED".equals(status)) missed++;
+                String status;
 
-                    last7Days.add(
-                            DailyStatus.builder()
-                                    .date(date)
-                                    .status(status)
-                                    .build()
-                    );
+                if (logMap.containsKey(currentDate)) {
+                    status = logMap.get(currentDate).getStatus();
+
+                    if ("DONE".equals(status)) {
+                        completed++;
+                    }
+
                 } else {
-                    missed++;
 
-                    last7Days.add(
-                            DailyStatus.builder()
-                                    .date(date)
-                                    .status("MISSED")
-                                    .build()
-                    );
+                    if (currentDate.isAfter(today)) {
+                        status = "FUTURE";
+                    } else if (currentDate.equals(today)) {
+                        status = "PENDING";
+                    } else {
+                        status = "MISSED";
+                    }
                 }
+
+                dayStatuses.add(
+                        DayStatus.builder()
+                                .day(day)
+                                .status(status)
+                                .build()
+                );
             }
 
-            double percentage = (completed / 7.0) * 100;
+            int daysPassed = (today.getMonthValue() == month && today.getYear() == year)
+                    ? today.getDayOfMonth()
+                    : totalDaysInMonth;
 
-            int streak = calculateStreak(logMap, today);
+            double percentage = (completed / (double) daysPassed) * 100;
+
+            int longestStreak = calculateLongestStreak(logMap, yearMonth, totalDaysInMonth);
 
             responseList.add(
                     DashboardResponse.builder()
                             .taskId(task.getId())
                             .taskName(task.getName())
-                            .totalDays(7)
+                            .dailyStatus(dayStatuses)
                             .completedDays(completed)
-                            .missedDays(missed)
+                            .totalDays(totalDaysInMonth)
                             .completionPercentage(percentage)
-                            .currentStreak(streak)
-                            .last7Days(last7Days)
+                            .longestStreak(longestStreak)
                             .build()
             );
         }
@@ -90,21 +102,28 @@ public class DashboardService {
         return responseList;
     }
 
-    private int calculateStreak(Map<LocalDate, TaskLog> logMap, LocalDate today) {
+    private int calculateLongestStreak(Map<LocalDate, TaskLog> logMap,
+                                       YearMonth yearMonth,
+                                       int totalDays) {
 
-        int streak = 0;
+        int maxStreak = 0;
+        int currentStreak = 0;
 
-        for (int i = 0; i < 7; i++) {
-            LocalDate date = today.minusDays(i);
+        for (int day = 1; day <= totalDays; day++) {
+
+            LocalDate date = yearMonth.atDay(day);
 
             if (logMap.containsKey(date)
                     && "DONE".equals(logMap.get(date).getStatus())) {
-                streak++;
+
+                currentStreak++;
+                maxStreak = Math.max(maxStreak, currentStreak);
+
             } else {
-                break;
+                currentStreak = 0;
             }
         }
 
-        return streak;
+        return maxStreak;
     }
 }
