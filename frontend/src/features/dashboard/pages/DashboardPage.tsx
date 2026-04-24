@@ -1,6 +1,6 @@
 import { useApiQuery } from "../../../shared/hooks/useApiQuery";
 import { fetchMonthlyDashboard } from "../api/dashboard.api";
-import TaskRow from "../components/TaskRow";
+import SummaryCards from "../today/sections/SummaryCards";
 
 function DashboardPage() {
   const { data, isLoading } = useApiQuery(
@@ -11,14 +11,21 @@ function DashboardPage() {
   if (isLoading) return <div className="p-6">Loading...</div>;
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Execution Dashboard</h1>
+    <div className="p-6 space-y-6">
 
-      <div className="space-y-3">
-        {data?.map((task) => (
-          <TaskRow key={task.taskId} task={task} />
-        ))}
+      {/* Header */}
+      <div>
+        <h1 className="text-xl font-semibold">
+          Dashboard (Today)
+        </h1>
+        <p className="text-secondary text-sm">
+          Wednesday, 22 Apr 2026
+        </p>
       </div>
+
+      {/* Summary Cards */}
+      <SummaryCards data={data || []} />
+
     </div>
   );
 }
