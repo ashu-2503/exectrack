@@ -1,5 +1,5 @@
-import type { DayStatus } from "../types/dashboard.types";
-import { TaskStatus } from "../../../shared/types/enums";
+import type { DayStatus } from "../../types/dashboard.types";
+import { TaskStatus } from "../../../../shared/types/enums";
 
 interface Props {
   days: DayStatus[];

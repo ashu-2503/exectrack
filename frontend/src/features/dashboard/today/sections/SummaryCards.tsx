@@ -5,7 +5,6 @@ interface Props {
 }
 
 function SummaryCards({ data }: Props) {
-  // 🔹 Aggregate values
   const totalTasks = data.length;
 
   const completed = data.filter(
@@ -20,46 +19,84 @@ function SummaryCards({ data }: Props) {
       : data.reduce((acc, t) => acc + t.completionPercentage, 0) /
         data.length;
 
+  const percentage = Math.round(avgCompletion);
+
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
       {/* Total Tasks */}
-      <div className="card">
-        <p className="text-secondary text-sm">Total Tasks</p>
-        <h2 className="text-2xl font-semibold mt-1">
+      <div className="card shadow-sm">
+        <p className="text-secondary text-xs font-medium">
+          Total Tasks
+        </p>
+        <h2 className="text-2xl font-bold mt-1">
           {totalTasks}
         </h2>
       </div>
 
       {/* Completed */}
-      <div className="card">
-        <p className="text-secondary text-sm">Completed</p>
-        <h2 className="text-2xl font-semibold mt-1 text-success">
+      <div className="card shadow-sm">
+        <p className="text-secondary text-xs font-medium">
+          Completed
+        </p>
+        <h2 className="text-2xl font-bold mt-1 text-success">
           {completed}
         </h2>
       </div>
 
       {/* Pending */}
-      <div className="card">
-        <p className="text-secondary text-sm">Pending</p>
-        <h2 className="text-2xl font-semibold mt-1 text-warning">
+      <div className="card shadow-sm">
+        <p className="text-secondary text-xs font-medium">
+          Pending
+        </p>
+        <h2 className="text-2xl font-bold mt-1 text-warning">
           {pending}
         </h2>
       </div>
 
-      {/* Completion % */}
-      <div className="card flex flex-col justify-between">
-        <p className="text-secondary text-sm">Completion %</p>
+      {/* Completion */}
+      <div className="card shadow-sm">
+        <p className="text-secondary text-xs font-medium">
+          Completion
+        </p>
 
         <div className="flex items-center justify-between mt-2">
-          <h2 className="text-xl font-semibold text-primary">
-            {avgCompletion.toFixed(0)}%
+
+          <h2 className="text-xl font-bold text-primary">
+            {percentage}%
           </h2>
 
-          {/* Simple circle indicator (placeholder for now) */}
-          <div className="w-10 h-10 rounded-full border-4 border-primary flex items-center justify-center text-xs font-semibold">
-            {avgCompletion.toFixed(0)}
+          {/* Proper Circular Progress */}
+          <div className="relative w-10 h-10">
+            <svg className="w-10 h-10 -rotate-90">
+              <circle
+                cx="20"
+                cy="20"
+                r="16"
+                stroke="#E2E8F0"
+                strokeWidth="3"
+                fill="none"
+              />
+              <circle
+                cx="20"
+                cy="20"
+                r="16"
+                stroke="#6C5CE7"
+                strokeWidth="3"
+                fill="none"
+                strokeDasharray={2 * Math.PI * 16}
+                strokeDashoffset={
+                  2 * Math.PI * 16 * (1 - percentage / 100)
+                }
+                strokeLinecap="round"
+              />
+            </svg>
+
+            <div className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold">
+              {percentage}
+            </div>
           </div>
+
         </div>
       </div>
     </div>

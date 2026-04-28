@@ -1,6 +1,7 @@
-import { useApiQuery } from "../../../shared/hooks/useApiQuery";
-import { fetchMonthlyDashboard } from "../api/dashboard.api";
-import SummaryCards from "../today/sections/SummaryCards";
+import { useApiQuery } from "../../../../shared/hooks/useApiQuery";
+import { fetchMonthlyDashboard } from "../../api/dashboard.api";
+import SummaryCards from "../sections/SummaryCards";
+import TodayTasksSection from "../sections/TodayTasksSection";
 
 function DashboardPage() {
   const { data, isLoading } = useApiQuery(
@@ -25,6 +26,7 @@ function DashboardPage() {
 
       {/* Summary Cards */}
       <SummaryCards data={data || []} />
+      <TodayTasksSection data={data || []} />
 
     </div>
   );
