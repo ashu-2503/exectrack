@@ -19,7 +19,7 @@ function Sidebar() {
   const location = useLocation();
 
   return (
-    <div className="w-16 h-screen bg-card border-r border-border flex flex-col items-center">
+    <div className="w-20 h-screen bg-card border-r border-border flex flex-col items-center">
 
       {/* 🔹 TOP SECTION */}
       <div className="flex flex-col items-center pt-4">

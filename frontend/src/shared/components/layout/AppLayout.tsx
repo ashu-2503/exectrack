@@ -1,13 +1,14 @@
+import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 
-function AppLayout({ children }: { children: React.ReactNode }) {
+function AppLayout() {
   return (
     <div className="flex">
 
       <Sidebar />
 
       <main className="flex-1 bg-page min-h-screen">
-        {children}
+        <Outlet />
       </main>
 
     </div>

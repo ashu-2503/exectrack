@@ -17,11 +17,8 @@ function DashboardPage() {
       {/* Header */}
       <div>
         <h1 className="text-xl font-semibold">
-          Dashboard (Today)
-        </h1>
-        <p className="text-secondary text-sm">
           Wednesday, 22 Apr 2026
-        </p>
+        </h1>
       </div>
 
       {/* Summary Cards */}
